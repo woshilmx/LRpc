@@ -1,0 +1,44 @@
+# Maven specific
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE-specific
+.idea/
+*.iml
+*.ipr
+*.iws
+/.idea_modules/
+
+# Eclipse-specific
+.classpath
+.project
+.settings/
+
+# NetBeans-specific
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Intellij-specific
+/out/
+/.gradle/
+/*.iml
+
+# Miscellaneous
+*.log
+*.log.*
+*.swp
+*~
+.DS_Store
+Thumbs.db
