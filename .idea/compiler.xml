@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="LRpc-core" />
         <module name="LRpc-provider" />
+        <module name="LRpc-manger" />
         <module name="LRpc-commen" />
         <module name="LRpc-api" />
         <module name="LRpc-consummer" />

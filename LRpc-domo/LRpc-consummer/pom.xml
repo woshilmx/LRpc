@@ -17,4 +17,18 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.lmx</groupId>
+            <artifactId>LRpc-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmx</groupId>
+            <artifactId>LRpc-core</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+
 </project>

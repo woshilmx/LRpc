@@ -21,6 +21,20 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
+
+
+        <dependency>
+            <groupId>com.lmx.framework</groupId>
+            <artifactId>LRpc-commen</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
