@@ -1,4 +1,5 @@
 # 手写Rpc远程调用框架
+
 ## 注册中心-Zookeeper
 
 - 使用版本号：3.8.2
@@ -14,29 +15,26 @@
   ~~~
 
 
-
 - 在本项目中我们采用Zookeeper作为注册中心，接下来我们将通过以下几个案例，复习java操控Zookeeper的方式
 
 - 创建一个连接对象
 
 ~~~java
 /**
-     * 初始化一个zookeeper连接对象，后续操作我们将调用zookeeper对象的方法完成
-     */
-    @Before
-    public void init() {
-        String url = "114.116.233.39:2181"; // 注册地址
-        int sessionTimeout = 3000; // 过期时间
-        try {
-            zooKeeper = new ZooKeeper(url, sessionTimeout, null);
-        
-        } catch (IOException e) {
-            e.printStackTrace();
+ * 初始化一个zookeeper连接对象，后续操作我们将调用zookeeper对象的方法完成
+ */
+@Before
+public void init(){
+        String url="114.116.233.39:2181"; // 注册地址
+        int sessionTimeout=3000; // 过期时间
+        try{
+        zooKeeper=new ZooKeeper(url,sessionTimeout,null);
+
+        }catch(IOException e){
+        e.printStackTrace();
         }
-    }
+        }
 ~~~
-
-
 
 - 增加一个节点
 
@@ -44,15 +42,20 @@
         - `PERSISTENT` (0, false, false, false, false): 创建一个持久节点。这种类型的节点不会因为创建它们的客户端会话结束而被删除。
         - `PERSISTENT_SEQUENTIAL` (2, false, true, false, false): 创建一个持久顺序节点。这种类型的节点的名称将在其末尾附加一个单调递增的数字。
         - `EPHEMERAL` (1, true, false, false, false): 创建一个临时节点。这种类型的节点会在创建它们的客户端会话结束时被删除。
-        - `EPHEMERAL_SEQUENTIAL` (3, true, true, false, false): 创建一个临时顺序节点。这种类型的节点的名称将在其末尾附加一个单调递增的数字，并且会在创建它们的客户端会话结束时被删除。
+        - `EPHEMERAL_SEQUENTIAL` (3, true, true, false, false):
+          创建一个临时顺序节点。这种类型的节点的名称将在其末尾附加一个单调递增的数字，并且会在创建它们的客户端会话结束时被删除。
         - `CONTAINER` (4, false, false, true, false): 创建一个容器节点。当最后一个子节点被删除时，容器节点将被异步删除。
-        - `PERSISTENT_WITH_TTL` (5, false, false, false, true): 创建一个带有TTL（生存时间）的持久节点。这种类型的节点将在给定的TTL时间后被删除，无论创建它们的客户端会话是否结束。
-        - `PERSISTENT_SEQUENTIAL_WITH_TTL` (6, false, true, false, true): 创建一个带有TTL（生存时间）的持久顺序节点。这种类型的节点的名称将在其末尾附加一个单调递增的数字，并且将在给定的TTL时间后被删除，无论创建它们的客户端会话是否结束。
+        - `PERSISTENT_WITH_TTL` (5, false, false, false, true):
+          创建一个带有TTL（生存时间）的持久节点。这种类型的节点将在给定的TTL时间后被删除，无论创建它们的客户端会话是否结束。
+        - `PERSISTENT_SEQUENTIAL_WITH_TTL` (6, false, true, false, true):
+          创建一个带有TTL（生存时间）的持久顺序节点。这种类型的节点的名称将在其末尾附加一个单调递增的数字，并且将在给定的TTL时间后被删除，无论创建它们的客户端会话是否结束。
     - 节点的权限列表
         - 在ZooDefs.Ids接口中
-        - `ANYONE_ID_UNSAFE`：这是一个Id实例，表示所有用户。"world"是一个特殊的scheme，表示这个Id适用于所有的ZooKeeper客户端，而"anyone"是这个scheme下的一个特殊的id，表示所有的用户。
+        - `ANYONE_ID_UNSAFE`：这是一个Id实例，表示所有用户。"world"是一个特殊的scheme，表示这个Id适用于所有的ZooKeeper客户端，而"anyone"
+          是这个scheme下的一个特殊的id，表示所有的用户。
         - `AUTH_IDS`：这是一个Id实例，表示已经通过身份验证的用户。"auth"是一个特殊的scheme，表示这个Id适用于已经通过身份验证的ZooKeeper客户端。
-        - `OPEN_ACL_UNSAFE`：这是一个ACL列表，其中包含一个ACL规则，这个规则允许所有用户执行所有操作（读取、写入、创建子节点、删除子节点、设置ACL）。这个列表被称为"unsafe"，因为它允许所有用户执行所有操作，可能会导致安全问题。
+        - `OPEN_ACL_UNSAFE`：这是一个ACL列表，其中包含一个ACL规则，这个规则允许所有用户执行所有操作（读取、写入、创建子节点、删除子节点、设置ACL）。这个列表被称为"unsafe"
+          ，因为它允许所有用户执行所有操作，可能会导致安全问题。
         - `CREATOR_ALL_ACL`：这是一个ACL列表，其中包含一个ACL规则，这个规则允许节点的创建者执行所有操作。这个列表只允许创建节点的客户端执行所有操作，对其他客户端来说，这个节点是只读的。
         - `READ_ACL_UNSAFE`：这是一个ACL列表，其中包含一个ACL规则，这个规则允许所有用户读取节点数据。这个列表被称为"unsafe"，因为它允许所有用户读取节点数据，可能会导致安全问题。
 
@@ -73,12 +76,11 @@
   ~~~
 
 
-
 - 删除一个节点
 
 ~~~java
     @Test
-    public void deleteTest() throws InterruptedException, KeeperException {
+public void deleteTest()throws InterruptedException,KeeperException{
 
         /**
          * version 为-1时，不考虑版本号直接删除
@@ -86,10 +88,10 @@
          * */
 
 // 
-        Stat lrpc = zooKeeper.exists("lrpc", null); // 获取版本号
+        Stat lrpc=zooKeeper.exists("lrpc",null); // 获取版本号
         lrpc.getVersion();
         zooKeeper.delete("/lrpc",lrpc.getVersion());
-    }
+        }
 ~~~
 
 - Stat 对象中属性的含义
@@ -141,36 +143,33 @@ pzxid：这是这个节点或其任何子节点最后一次被修改的事务的
     }
 ~~~
 
-
-
 - 修改节点数据
 
 ~~~java
  @Test
-    public void updateTest() throws InterruptedException, KeeperException {
+public void updateTest()throws InterruptedException,KeeperException{
 
         /**
          * version 为-1时，不考虑版本号直接删除
          * 版本号的存在可以起到乐观锁的作用
          * */
 //
-        Stat exists = zooKeeper.exists("/lrpc", null);
+        Stat exists=zooKeeper.exists("/lrpc",null);
 
         System.out.println(exists.getVersion());
 //        修改 -1时忽略版本号，
-        zooKeeper.setData("/lrpc", "newdata".getBytes(StandardCharsets.UTF_8), exists.getVersion());
+        zooKeeper.setData("/lrpc","newdata".getBytes(StandardCharsets.UTF_8),exists.getVersion());
 
-        System.out.println(zooKeeper.exists("/lrpc", null).getVersion());
-    }
+        System.out.println(zooKeeper.exists("/lrpc",null).getVersion());
+        }
 ~~~
-
-
 
 - 复习Watacher机制
 
   ![image-20230720205419521](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20230720205419521.png)
 
-- Zookeeper提供了数据的发布/订阅功能。多个订阅者可监听某一特定主题对象（节点）。当主题对象发生改 变（数据内容改变，被删除等），会实时通知所有订阅者。该机制在被订阅对象发生变化时，会异步通知客户端，因此客户端不必在注册监听后轮询阻塞。
+- Zookeeper提供了数据的发布/订阅功能。多个订阅者可监听某一特定主题对象（节点）。当主题对象发生改
+  变（数据内容改变，被删除等），会实时通知所有订阅者。该机制在被订阅对象发生变化时，会异步通知客户端，因此客户端不必在注册监听后轮询阻塞。
 
 - Watcher机制实际上与观察者模式类似，也可看作观察者模式在分布式场景中给的一种应用。
 
@@ -247,7 +246,8 @@ pzxid：这是这个节点或其任何子节点最后一次被修改的事务的
 - 在Apache ZooKeeper中，`org.apache.zookeeper.AddWatchMode`枚举定义了添加watcher（观察者）时可以使用的模式。以下是每个模式的含义：
 
     - `PERSISTENT`：这个模式表示watcher是持久的。也就是说，即使触发了watcher，它仍然会继续观察节点的状态变化，直到客户端会话结束。这意味着你不需要手动重新设置watcher。
-    - `PERSISTENT_RECURSIVE`：这个模式表示watcher是持久的，并且会递归地应用到所有的子节点。也就是说，当你在一个节点上添加一个`PERSISTENT_RECURSIVE`模式的watcher时，这个watcher不仅会观察这个节点的状态变化，还会观察这个节点的所有现有和未来的子节点的状态变化。
+    - `PERSISTENT_RECURSIVE`：这个模式表示watcher是持久的，并且会递归地应用到所有的子节点。也就是说，当你在一个节点上添加一个`PERSISTENT_RECURSIVE`
+      模式的watcher时，这个watcher不仅会观察这个节点的状态变化，还会观察这个节点的所有现有和未来的子节点的状态变化。
     - 在此段代码中，监听事件触发了四次
 
   ~~~java
@@ -285,5 +285,12 @@ pzxid：这是这个节点或其任何子节点最后一次被修改的事务的
           }
       }
   ~~~
-
   ## 基础工程的构建
+
+## 服务端
+
+### 服务接口的上下线
+
+## 客户端
+
+### 客户端获取可用节点

@@ -7,6 +7,7 @@ import org.apache.zookeeper.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -88,4 +89,24 @@ public class ZookeeperUtil {
         }
     }
 
+
+    /**
+     * 获取某个节点下子节点的个数
+     *
+     * @param zooKeeper
+     * @param path
+     */
+    public static List<String> getChildNode(ZooKeeper zooKeeper, String path, Watcher watcher) {
+        if (zooKeeper == null) {
+            log.info("zookeepre is null");
+            return null;
+        }
+        try {
+            return zooKeeper.getChildren(path, watcher);
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+          throw new ZookeeperException("获取子节点失败");
+        }
+
+    }
 }

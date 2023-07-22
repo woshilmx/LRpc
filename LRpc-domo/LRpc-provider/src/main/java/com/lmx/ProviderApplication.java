@@ -10,7 +10,7 @@ import com.lmx.service.iml.HelloServiceIml;
 /**
  * 服务提供方的主启动类
  * */
-public class Application {
+public class ProviderApplication {
     public static void main(String[] args) {
         // 1-basic/dubbo-samples-api/src/main/java/org/apache/dubbo/samples/provider/Application.java
 
