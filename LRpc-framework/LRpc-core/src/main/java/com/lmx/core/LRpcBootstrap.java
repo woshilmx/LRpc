@@ -5,6 +5,7 @@ import com.lmx.core.discovery.Registry;
 import com.lmx.core.handler.LRpcRequestByteToMessageDecoder;
 import com.lmx.core.handler.LRpcReposeMessageToByteEncoder;
 import com.lmx.core.handler.LRpcServerHandler;
+import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.generator.IDGenerator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -150,7 +151,14 @@ public class LRpcBootstrap {
      */
     public LRpcBootstrap serializa(String serializaType) {
         SERIALIZA_TYPE = serializaType;
-        return this;
+//        判断是否支出该序列化方式
+        Boolean issupport = SerializaFactory.isSupporType(serializaType);
+        if (issupport) {
+            return this;
+        } else {
+            throw new RuntimeException("不支持" + serializaType + "类型的序列化方式");
+        }
+
 
     }
 }

@@ -34,8 +34,19 @@ public class SerializaFactory {
 
     //    通过序列化方式名称获取序列化器
     public static SerializaWapper getSerializa(String serializaTypeName) {
+        serializaTypeName = serializaTypeName.trim().toLowerCase();// 去除两端空格，都转为小写字母
         return SERIALIZA_NAME_CACHE.get(serializaTypeName);
     }
 
 
+    /**
+     * 判断是否支持serializaType序列化方式
+     */
+    public static Boolean isSupporType(String serializaType) {
+
+        final String s = serializaType.trim().toLowerCase(); // 去除两端空格，都转为小写字母
+
+        return SERIALIZA_NAME_CACHE.containsKey(s);
+
+    }
 }

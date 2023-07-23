@@ -15,7 +15,7 @@ public class ConsumerApplication {
         LRpcBootstrap.getInstance()
                 .application("first-dubbo-consumer")
                 .registry(new RegistryConfig("zookeeper://114.116.233.39:2181")) // 这一步已经连接完成
-                .serializa("hessian")
+                .serializa("Hessian")
                 .reference(reference);  // 将上述步骤的RegistryConfig设置到reference中
 //                .start();
 
