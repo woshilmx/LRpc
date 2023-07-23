@@ -1,12 +1,13 @@
 package com.lmx.core.netty;
 
 
-import com.lmx.core.handler.MyClientHandler;
+import com.lmx.core.handler.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
 
 public class NettyBootstrapInitialization {
     private static Bootstrap bootstrap = new Bootstrap();
@@ -21,6 +22,9 @@ public class NettyBootstrapInitialization {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                         ChannelPipeline pipeline = nioSocketChannel.pipeline();
+                        pipeline.addLast(new LoggingHandler()); // 添加日志的处理器
+                        pipeline.addLast(new LRpcRequestMessageToByteEncoder()); // 创建请求编码器
+                        pipeline.addLast(new LRpcResposeByteToMessageDecoder());  // 响应的解码器
                         pipeline.addLast(new MyClientHandler());
                     }
                 });

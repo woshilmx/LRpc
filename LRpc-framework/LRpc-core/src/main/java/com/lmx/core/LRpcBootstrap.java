@@ -2,7 +2,10 @@ package com.lmx.core;
 
 
 import com.lmx.core.discovery.Registry;
-import com.lmx.core.handler.MyServerhandler;
+import com.lmx.core.handler.LRpcRequestByteToMessageDecoder;
+import com.lmx.core.handler.LRpcReposeMessageToByteEncoder;
+import com.lmx.core.handler.LRpcServerHandler;
+import com.lmx.generator.IDGenerator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -31,8 +34,11 @@ public class LRpcBootstrap {
     private ZooKeeper zooKeeper;
     //    设置服务消费者与nettychannel通道缓存，避免每次调用方法重新连接
     public static final Map<InetSocketAddress, Channel> SERVER_CHANNEL_CACHE = new ConcurrentHashMap<>(16);
-    private static final Map<String, ServiceConfig<?>> serviceConfigMap = new ConcurrentHashMap<>(16); // 保存的是服务提供者发布的接口的实现类
-    public static final Map<Long, CompletableFuture<Object>> PEDDING_Future=new ConcurrentHashMap<>(16);
+    public static final Map<String, ServiceConfig<?>> serviceConfigMap = new ConcurrentHashMap<>(16); // 保存的是服务提供者发布的接口的实现类
+    public static final Map<Long, CompletableFuture<Object>> PEDDING_Future = new ConcurrentHashMap<>(16);
+
+    //    生成全局的id生成器，单例
+    public static final IDGenerator idGenerator = new IDGenerator(1, 2);
 
     /**
      * 注册中心
@@ -40,6 +46,7 @@ public class LRpcBootstrap {
     private Registry registry;
 
     public final static int SERVICE_PORT = 8888;
+    public static String SERIALIZA_TYPE = "jdk"; // 序列化的方式,默认使用jdk
 
     public LRpcBootstrap() {
 //        执行引导类初始化的工作
@@ -111,7 +118,9 @@ public class LRpcBootstrap {
                         protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                             final ChannelPipeline pipeline = nioSocketChannel.pipeline();
 //                            添加一个处理器
-                            pipeline.addLast(new MyServerhandler());
+                            pipeline.addLast(new LRpcRequestByteToMessageDecoder());
+                            pipeline.addLast(new LRpcServerHandler());
+                            pipeline.addLast(new LRpcReposeMessageToByteEncoder());
                         }
                     });
 //            以888端口启动
@@ -134,5 +143,14 @@ public class LRpcBootstrap {
     public LRpcBootstrap reference(ReferenceConfig<?> reference) {
         reference.setRegistry(this.registry);
         return this;
+    }
+
+    /**
+     * 指定序列化的方式
+     */
+    public LRpcBootstrap serializa(String serializaType) {
+        SERIALIZA_TYPE = serializaType;
+        return this;
+
     }
 }

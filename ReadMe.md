@@ -285,7 +285,8 @@ public void updateTest()throws InterruptedException,KeeperException{
           }
       }
   ~~~
-  ## 基础工程的构建
+
+## 基础工程的构建
 
 ## 服务端
 
@@ -294,3 +295,6 @@ public void updateTest()throws InterruptedException,KeeperException{
 ## 客户端
 
 ### 客户端获取可用节点
+
+### 添加netty实现基础通信
+

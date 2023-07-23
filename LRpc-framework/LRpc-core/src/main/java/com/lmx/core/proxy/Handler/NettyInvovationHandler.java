@@ -2,9 +2,12 @@ package com.lmx.core.proxy.Handler;
 
 import com.lmx.core.LRpcBootstrap;
 import com.lmx.core.discovery.Registry;
+import com.lmx.core.serialization.SerializaFactory;
+import com.lmx.generator.IDGenerator;
 import com.lmx.core.netty.NettyBootstrapInitialization;
+import com.lmx.core.transport.message.LRpcRequest;
+import com.lmx.core.transport.message.Payload;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -13,9 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public class NettyInvovationHandler implements InvocationHandler {
     private Class<?> interfancecomsumer;
@@ -69,8 +72,30 @@ public class NettyInvovationHandler implements InvocationHandler {
             throw new RuntimeException("channel error");
         }
 
+//       -------------------------封装报文---------------------------------------
+//        封装有关调用接口的信息
+        Payload build = Payload.builder()
+                .interfanceName(interfancecomsumer.getName())
+                .methodName(method.getName())
+                .parameterType(method.getParameterTypes())
+                .returnType(method.getReturnType())
+                .parameterValue(args)
+                .build();
+//        封装请求
+
+        final Long id = LRpcBootstrap.idGenerator.getId();
+        LRpcRequest lRpcRequest = LRpcRequest.builder()
+                .requestId(id) // 获取唯一请求id
+                .compressType((byte) 1)
+                .serializationType(SerializaFactory.getSerializa(LRpcBootstrap.SERIALIZA_TYPE).getCode())
+                .requestType((byte) 1)
+                .payload(build)
+                .build();
+
+
         CompletableFuture<Object> objectCompletableFuture = new CompletableFuture<>();
-        serviceChannel.writeAndFlush(Unpooled.copiedBuffer("hello,server".getBytes(StandardCharsets.UTF_8))).addListener(new ChannelFutureListener() {
+//        将封装好的请求写出去
+        serviceChannel.writeAndFlush(lRpcRequest).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
 
@@ -81,7 +106,7 @@ public class NettyInvovationHandler implements InvocationHandler {
             }
         });
 //                保存当前的CompletableFuture
-        LRpcBootstrap.PEDDING_Future.put(1L, objectCompletableFuture);
+        LRpcBootstrap.PEDDING_Future.put(id, objectCompletableFuture);
         return objectCompletableFuture.get(3, TimeUnit.SECONDS);
 
     }
