@@ -1,5 +1,7 @@
 package com.lmx.core.handler;
 
+import com.lmx.core.compress.Compress;
+import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.serialization.Serializa;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.core.transport.message.LRpcRequest;
@@ -50,6 +52,11 @@ public class LRpcRequestMessageToByteEncoder extends MessageToByteEncoder<LRpcRe
 //        序列化
         Serializa serializa = SerializaFactory.getSerializa(lRpcRequest.getSerializationType()).getSerializa();
         byte[] bytesByPayload = serializa.serializa(lRpcRequest.getPayload());
+
+//        进行压缩
+        Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
+        bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
+
 //        byte[] bytesByPayload = getBytesByPayload(); // 获取载荷的字符
         byteBuf.writeBytes(bytesByPayload);
         int currentpostion = byteBuf.writerIndex(); // 保存当前位置

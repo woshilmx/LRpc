@@ -11,6 +11,8 @@ import com.lmx.util.ZookeeperException;
 import com.lmx.util.ZookeeperUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
 import java.net.InetAddress;
@@ -70,12 +72,18 @@ public class ZookeeperRegistry implements Registry {
      * @return
      */
     @Override
-    public InetSocketAddress lookup(String serviceName) {
+    public List<InetSocketAddress> lookup(String serviceName) {
 
         String path = Contanst.PROVIDER_PATH + serviceName;
 
 //        获取该服务下所有可用节点
-        List<String> ipAndHost = ZookeeperUtil.getChildNode(zooKeeper, path, null);
+        List<String> ipAndHost = ZookeeperUtil.getChildNode(zooKeeper, path, new Watcher() {
+            @Override
+            public void process(WatchedEvent watchedEvent) {
+//                如果节点发生变化，重新拉取可用节点
+                lookup(serviceName);
+            }
+        });
         if (ipAndHost == null) {
             throw new RuntimeException("无可用服务");
         }
@@ -89,13 +97,14 @@ public class ZookeeperRegistry implements Registry {
                 throw new ZookeeperException(e.getMessage());
             }
 
-
         }).collect(Collectors.toList());
+
         if (collect.isEmpty()) {
             throw new ZookeeperException("暂无可用服务节点");
         }
 //      TODO  进行节点的筛选，轮询，随机
-        return collect.get(0);
+        LRpcBootstrap.STRING_LIST_MAP.put(serviceName, collect); // 缓存不同接口的服务列表，不用每次都连接
+        return collect;
 
     }
 }

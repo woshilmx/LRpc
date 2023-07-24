@@ -1,5 +1,7 @@
 package com.lmx.core.handler;
 
+import com.lmx.core.compress.Compress;
+import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.serialization.Serializa;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.core.transport.message.LRpcRequest;
@@ -39,6 +41,7 @@ public class LRpcReposeMessageToByteEncoder extends MessageToByteEncoder<LRpcRes
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, LRpcRespose lRpcRespose, ByteBuf byteBuf) throws Exception {
 //
+        log.info("开始封装响应报文{}",lRpcRespose.toString());
         byteBuf.writeBytes(MessageContant.MOSHU_NAME);
         byteBuf.writeByte(MessageContant.VERSION);
         byteBuf.writeShort(MessageContant.HEADER_LENGTH);
@@ -50,6 +53,13 @@ public class LRpcReposeMessageToByteEncoder extends MessageToByteEncoder<LRpcRes
         byteBuf.writeLong(lRpcRespose.getRequestId());
         Serializa serializa = SerializaFactory.getSerializa(lRpcRespose.getSerializationType()).getSerializa();
         byte[] bytesByPayload = serializa.serializa(lRpcRespose.getBody()); // 获取载荷的字符
+//        压缩
+        log.info("准备获取压缩器");
+        Compress compress = CompressFactory.getCompressWapper
+                (lRpcRespose.getCompressType()).
+                getCompress();
+        log.info("获取压缩器");
+        bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
 //        byte[] bytesByPayload = getBytesByPayload(lRpcRespose.getBody()); // 获取载荷的字符
         byteBuf.writeBytes(bytesByPayload);
         int currentpostion = byteBuf.writerIndex(); // 保存当前位置
@@ -57,7 +67,7 @@ public class LRpcReposeMessageToByteEncoder extends MessageToByteEncoder<LRpcRes
         byteBuf.writeInt(MessageContant.HEADER_LENGTH + bytesByPayload.length);
         log.info("请求头长度{},载荷长度{}", MessageContant.HEADER_LENGTH, bytesByPayload.length);
         byteBuf.writerIndex(currentpostion); // 写指针归为
-
+        log.info("响应报文{}封装结束",lRpcRespose.toString());
     }
 
 //    private byte[] getBytesByPayload(Object body) {

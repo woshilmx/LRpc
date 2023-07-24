@@ -10,6 +10,7 @@ import com.lmx.core.transport.message.Payload;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * 得到LRpcRequest对象
  */
+@Slf4j
+
 public class LRpcServerHandler extends SimpleChannelInboundHandler<LRpcRequest> {
 
     @Override
@@ -32,9 +35,10 @@ public class LRpcServerHandler extends SimpleChannelInboundHandler<LRpcRequest> 
         LRpcRespose lRpcRespose = new LRpcRespose();
         lRpcRespose.setBody(invoke);
         lRpcRespose.setCode(ResposeCode.CORRENT_CODE.getCode());
-        lRpcRespose.setCompressType(lRpcRespose.getCompressType()); // 压缩类型
+        lRpcRespose.setCompressType(lRpcRequest.getCompressType()); // 压缩类型
         lRpcRespose.setSerializationType(lRpcRequest.getSerializationType());  // 序列化类型
         lRpcRespose.setRequestId(lRpcRequest.getRequestId());  // 请求id
+        log.info("方法调用完成");
 
 //        写出结果，进入下一个handler
         channelHandlerContext.channel().writeAndFlush(lRpcRespose);

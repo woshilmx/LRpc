@@ -1,5 +1,8 @@
 package com.lmx.core.handler;
 
+import com.lmx.core.compress.Compress;
+import com.lmx.core.compress.CompressFactory;
+import com.lmx.core.messageenum.RequestTypeEnum;
 import com.lmx.core.serialization.Serializa;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.core.serialization.SerializaWapper;
@@ -85,9 +88,8 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
         lRpcRequest.setSerializationType(serializationType);
 
 
-// 2代表心跳检测
-
-        if (requestType == 2) {
+        // 如果是心跳请求
+        if (requestType == RequestTypeEnum.HEART_BEAT_REQUEST.getCode()) {
             return lRpcRequest;
         }
 
@@ -99,6 +101,8 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
 
         in.readBytes(payloadbyte);
         //        TODO 解压缩
+        final Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
+        payloadbyte = compress.deCompress(payloadbyte);
 //      TODO   反序列化
         SerializaWapper serializaWapper = SerializaFactory.getSerializa(lRpcRequest.getSerializationType());
         Serializa serializa = serializaWapper.getSerializa();
@@ -111,7 +115,7 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
 //            objectInputStream = new ObjectInputStream(byteArrayInputStream);
 //            Payload payload = (Payload) objectInputStream.readObject();
         lRpcRequest.setPayload(payload);
-
+        log.info("请求的数据为{}", lRpcRequest.toString());
         return lRpcRequest;
     }
 }

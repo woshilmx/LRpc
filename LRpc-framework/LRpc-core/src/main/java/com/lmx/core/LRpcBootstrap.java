@@ -1,10 +1,13 @@
 package com.lmx.core;
 
 
+import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.discovery.Registry;
 import com.lmx.core.handler.LRpcRequestByteToMessageDecoder;
 import com.lmx.core.handler.LRpcReposeMessageToByteEncoder;
 import com.lmx.core.handler.LRpcServerHandler;
+import com.lmx.core.loadbalancer.LoadBalancer;
+import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.generator.IDGenerator;
 import io.netty.bootstrap.ServerBootstrap;
@@ -15,11 +18,14 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.ZooKeeper;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,27 +33,35 @@ import java.util.concurrent.ConcurrentHashMap;
  * 依赖启动类
  */
 @Slf4j
+@Data
 public class LRpcBootstrap {
     private static final LRpcBootstrap lRpcBootstrap = new LRpcBootstrap();
     private String applicationName = "default";
     private RegistryConfig registryConfig;
+
     private ProtocolConfig protocolConfig;
     private ZooKeeper zooKeeper;
     //    设置服务消费者与nettychannel通道缓存，避免每次调用方法重新连接
     public static final Map<InetSocketAddress, Channel> SERVER_CHANNEL_CACHE = new ConcurrentHashMap<>(16);
-    public static final Map<String, ServiceConfig<?>> serviceConfigMap = new ConcurrentHashMap<>(16); // 保存的是服务提供者发布的接口的实现类
+    // 保存的是服务提供者发布的接口的实现类
+    public static final Map<String, ServiceConfig<?>> serviceConfigMap = new ConcurrentHashMap<>(16);
+    //  阻塞的CompletableFuture，
     public static final Map<Long, CompletableFuture<Object>> PEDDING_Future = new ConcurrentHashMap<>(16);
 
     //    生成全局的id生成器，单例
     public static final IDGenerator idGenerator = new IDGenerator(1, 2);
 
+    //    保存可用服务的列表
+    public static final Map<String, List<InetSocketAddress>> STRING_LIST_MAP = new ConcurrentHashMap<>(16);
     /**
      * 注册中心
      */
     private Registry registry;
 
-    public final static int SERVICE_PORT = 8888;
+    public final static int SERVICE_PORT = 8890;
     public static String SERIALIZA_TYPE = "jdk"; // 序列化的方式,默认使用jdk
+    public static String COMPRESS_TYPE = "gzip"; // 压缩的方式，默认使用gzip
+    public static LoadBalancer LOADBALANCER = new RoundLoadBalancer(); // 默认使用轮询的负载均衡策略
 
     public LRpcBootstrap() {
 //        执行引导类初始化的工作
@@ -160,5 +174,25 @@ public class LRpcBootstrap {
         }
 
 
+    }
+
+    public LRpcBootstrap compress(String compressType) {
+        COMPRESS_TYPE = compressType;
+        Boolean issupport = CompressFactory.isSupporType(compressType);
+        if (issupport) {
+            return this;
+        } else {
+            throw new RuntimeException("不支持" + compressType + "类型的序列化方式");
+        }
+
+    }
+
+
+    /**
+     * 自动负载均衡策略
+     */
+    public LRpcBootstrap loadBlance(LoadBalancer loadBalancer) {
+        LOADBALANCER = loadBalancer;
+        return this;
     }
 }

@@ -1,5 +1,7 @@
 package com.lmx.core.handler;
 
+import com.lmx.core.compress.Compress;
+import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.serialization.Serializa;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.core.transport.message.LRpcRequest;
@@ -90,7 +92,8 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
         in.readBytes(payloadbyte);
 
         //        TODO 解压缩
-
+        final Compress compress = CompressFactory.getCompressWapper(lRpcRespose.getCompressType()).getCompress();
+        payloadbyte = compress.deCompress(payloadbyte);
         //        TODO   反序列化,现在此处默认使用JDK提供的序列化方式
         final Serializa serializa = SerializaFactory.getSerializa(serializationType).getSerializa();
         final Object body = serializa.deSerializa(payloadbyte, Object.class);

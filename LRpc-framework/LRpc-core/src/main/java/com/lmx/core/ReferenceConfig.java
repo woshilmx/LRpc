@@ -42,11 +42,10 @@ public class ReferenceConfig<T> {
      */
     public T get() {
 //      在这个类中发现可用的服务节点，与该节点建立连接，封装报文，发送报文，接收结果
-        NettyInvovationHandler nettyInvovationHandler = new NettyInvovationHandler(interfancecomsumer, registry);
+        NettyInvovationHandler nettyInvovationHandler = new NettyInvovationHandler(interfancecomsumer);
         Object o = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{interfancecomsumer}, nettyInvovationHandler);
         return (T) o;
     }
-
     public void setRegistry(Registry registry) {
         this.registry = registry;
     }

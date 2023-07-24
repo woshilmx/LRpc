@@ -1,7 +1,11 @@
 package com.lmx.core.proxy.Handler;
 
 import com.lmx.core.LRpcBootstrap;
+import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.discovery.Registry;
+import com.lmx.core.loadbalancer.LoadBalancer;
+import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
+import com.lmx.core.messageenum.RequestTypeEnum;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.generator.IDGenerator;
 import com.lmx.core.netty.NettyBootstrapInitialization;
@@ -23,12 +27,12 @@ import java.util.concurrent.TimeUnit;
 public class NettyInvovationHandler implements InvocationHandler {
     private Class<?> interfancecomsumer;
 
-    //    注册中心的配置，通过这个类可以获取到注册中心
-    private Registry registry;
+//    //    注册中心的配置，通过这个类可以获取到注册中心
+//    private Registry registry;
 
-    public NettyInvovationHandler(Class<?> interfancecomsumer, Registry registry) {
+    public NettyInvovationHandler(Class<?> interfancecomsumer) {
         this.interfancecomsumer = interfancecomsumer;
-        this.registry = registry;
+//        this.registry = registry;
     }
 
     @Override
@@ -37,7 +41,14 @@ public class NettyInvovationHandler implements InvocationHandler {
         String name = method.getName(); // 方法名称
         String serviceName = interfancecomsumer.getName(); // 当前调用接口的全类名
 
-        InetSocketAddress ipAdress = registry.lookup(serviceName);//寻找该接口的所有可用节点
+//        创建一个负载均衡器，在负载均衡器中，选择合适的节点
+//        RoundLoadBalancer roundLoadBalancer = new RoundLoadBalancer(); // 使用工厂
+        LoadBalancer loadbalancer = LRpcBootstrap.LOADBALANCER;
+
+
+        InetSocketAddress ipAdress = loadbalancer.getLoadBalance(serviceName);
+
+//        InetSocketAddress ipAdress = registry.lookup(serviceName);//寻找该接口的所有可用节点
 //                使用netty向服务端发送信息
         log.info("获取的ip地址是" + ipAdress);
 
@@ -86,9 +97,9 @@ public class NettyInvovationHandler implements InvocationHandler {
         final Long id = LRpcBootstrap.idGenerator.getId();
         LRpcRequest lRpcRequest = LRpcRequest.builder()
                 .requestId(id) // 获取唯一请求id
-                .compressType((byte) 1)
+                .compressType(CompressFactory.getCompressWapper(LRpcBootstrap.COMPRESS_TYPE).getCode())
                 .serializationType(SerializaFactory.getSerializa(LRpcBootstrap.SERIALIZA_TYPE).getCode())
-                .requestType((byte) 1)
+                .requestType(RequestTypeEnum.COMMEN_REQUEST.getCode()) // 构建请求
                 .payload(build)
                 .build();
 
@@ -107,7 +118,7 @@ public class NettyInvovationHandler implements InvocationHandler {
         });
 //                保存当前的CompletableFuture
         LRpcBootstrap.PEDDING_Future.put(id, objectCompletableFuture);
-        return objectCompletableFuture.get(3, TimeUnit.SECONDS);
+        return objectCompletableFuture.get(5, TimeUnit.SECONDS);
 
     }
 }
