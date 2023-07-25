@@ -84,6 +84,7 @@ public class ZookeeperRegistry implements Registry {
                 lookup(serviceName);
             }
         });
+
         if (ipAndHost == null) {
             throw new RuntimeException("无可用服务");
         }
@@ -105,6 +106,5 @@ public class ZookeeperRegistry implements Registry {
 //      TODO  进行节点的筛选，轮询，随机
         LRpcBootstrap.STRING_LIST_MAP.put(serviceName, collect); // 缓存不同接口的服务列表，不用每次都连接
         return collect;
-
     }
 }

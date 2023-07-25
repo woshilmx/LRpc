@@ -21,12 +21,13 @@ public class MyClientHandler extends SimpleChannelInboundHandler<LRpcRespose> {
 //        TODO 通过请求的id获取到 PEDDING_Future中的CompletableFuture，然后返回
         final long requestId = lRpcRespose.getRequestId();
         CompletableFuture<Object> objectCompletableFuture = LRpcBootstrap.PEDDING_Future.get(requestId);
-        if (lRpcRespose.getCode() == ResposeCode.CORRENT_CODE.getCode()) {
-
-        objectCompletableFuture.complete(lRpcRespose.getBody());
-        } else {
-            throw new RuntimeException("调用失败");
-        }
+//        if (lRpcRespose.getCode() == ResposeCode.CORRENT_CODE.getCode()) {
+//
+//            objectCompletableFuture.complete(lRpcRespose.getBody());
+//        } else {
+//            throw new RuntimeException("调用失败");
+//        }
+        objectCompletableFuture.complete(lRpcRespose);
 
     }
 }

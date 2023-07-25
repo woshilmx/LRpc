@@ -20,10 +20,10 @@ import java.nio.charset.StandardCharsets;
 public class MessageContant {
     public static final byte[] MOSHU_NAME = "lrpc".getBytes(StandardCharsets.UTF_8);
     public static final byte VERSION = 1;
-    public static final short HEADER_LENGTH = (short) (MOSHU_NAME.length + 1 + 2 + 4 + 1 + 1 + 1 + 8);
-    public static final int MAX_FRAME_LENGTH = 1024*1024; // 最大帧长度
+    public static final short HEADER_LENGTH = (short) (MOSHU_NAME.length + 1 + 2 + 4 + 1 + 8 + 1 + 1 + 8); //
+    public static final int MAX_FRAME_LENGTH = 1024 * 1024; // 最大帧长度
     public static final int FULL_FILED_LENGTH = 4; // 总长度占4个字节
     private static final int VERSION_LENGTH = 1; // 版本号长度
     private static final int HEADER_FILED_LENGTH = 2;  // header长度两个字节
-    public static final int LENGHTH_FILED_OFFSET = MOSHU_NAME.length+VERSION_LENGTH+HEADER_FILED_LENGTH;  // 总长度偏移量
+    public static final int LENGHTH_FILED_OFFSET = MOSHU_NAME.length + VERSION_LENGTH + HEADER_FILED_LENGTH;  // 总长度偏移量
 }

@@ -41,33 +41,40 @@ public class LRpcReposeMessageToByteEncoder extends MessageToByteEncoder<LRpcRes
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, LRpcRespose lRpcRespose, ByteBuf byteBuf) throws Exception {
 //
-        log.info("开始封装响应报文{}",lRpcRespose.toString());
+        log.info("开始封装响应报文{}", lRpcRespose.toString());
         byteBuf.writeBytes(MessageContant.MOSHU_NAME);
         byteBuf.writeByte(MessageContant.VERSION);
         byteBuf.writeShort(MessageContant.HEADER_LENGTH);
         int i = byteBuf.writerIndex(); // 整体报文长度的起始位置
         byteBuf.writerIndex(i + MessageContant.FULL_FILED_LENGTH); // 从当前位置向后移动四个字节
         byteBuf.writeByte(lRpcRespose.getCode());
+        byteBuf.writeLong(lRpcRespose.getTimestamp());
         byteBuf.writeByte(lRpcRespose.getSerializationType());
         byteBuf.writeByte(lRpcRespose.getCompressType());
         byteBuf.writeLong(lRpcRespose.getRequestId());
-        Serializa serializa = SerializaFactory.getSerializa(lRpcRespose.getSerializationType()).getSerializa();
-        byte[] bytesByPayload = serializa.serializa(lRpcRespose.getBody()); // 获取载荷的字符
+
+        int bodyLength = 0;
+        if (lRpcRespose.getBody() != null) {
+            Serializa serializa = SerializaFactory.getSerializa(lRpcRespose.getSerializationType()).getSerializa();
+            byte[] bytesByPayload = serializa.serializa(lRpcRespose.getBody()); // 获取载荷的字符
 //        压缩
-        log.info("准备获取压缩器");
-        Compress compress = CompressFactory.getCompressWapper
-                (lRpcRespose.getCompressType()).
-                getCompress();
-        log.info("获取压缩器");
-        bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
+            log.info("准备获取压缩器");
+            Compress compress = CompressFactory.getCompressWapper
+                    (lRpcRespose.getCompressType()).
+                    getCompress();
+            log.info("获取压缩器");
+            bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
 //        byte[] bytesByPayload = getBytesByPayload(lRpcRespose.getBody()); // 获取载荷的字符
-        byteBuf.writeBytes(bytesByPayload);
+            byteBuf.writeBytes(bytesByPayload);
+            bodyLength = bytesByPayload.length;
+        }
+
         int currentpostion = byteBuf.writerIndex(); // 保存当前位置
         byteBuf.writerIndex(i);
-        byteBuf.writeInt(MessageContant.HEADER_LENGTH + bytesByPayload.length);
-        log.info("请求头长度{},载荷长度{}", MessageContant.HEADER_LENGTH, bytesByPayload.length);
+        byteBuf.writeInt(MessageContant.HEADER_LENGTH + bodyLength);
+        log.info("请求头长度{},载荷长度{}", MessageContant.HEADER_LENGTH, bodyLength);
         byteBuf.writerIndex(currentpostion); // 写指针归为
-        log.info("响应报文{}封装结束",lRpcRespose.toString());
+        log.info("响应报文{}封装结束", lRpcRespose.toString());
     }
 
 //    private byte[] getBytesByPayload(Object body) {

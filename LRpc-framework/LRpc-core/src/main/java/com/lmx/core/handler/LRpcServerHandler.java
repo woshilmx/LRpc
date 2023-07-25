@@ -25,17 +25,22 @@ public class LRpcServerHandler extends SimpleChannelInboundHandler<LRpcRequest> 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LRpcRequest lRpcRequest) throws Exception {
         Payload payload = lRpcRequest.getPayload();
-        ServiceConfig<?> serviceConfig = LRpcBootstrap.serviceConfigMap.get(payload.getInterfanceName());
-        Object ref = serviceConfig.getRef(); // 获取具体实现类
-        Class<?> aClass = ref.getClass();
-        Method method = aClass.getMethod(payload.getMethodName(), payload.getParameterType());
-        Object invoke = method.invoke(ref, payload.getParameterValue()); // 调用方法获取到返回值，然后写会客户端
+        Object invoke = null;
+        if (payload != null) {
+            ServiceConfig<?> serviceConfig = LRpcBootstrap.serviceConfigMap.get(payload.getInterfanceName());
+            Object ref = serviceConfig.getRef(); // 获取具体实现类
+            Class<?> aClass = ref.getClass();
+            Method method = aClass.getMethod(payload.getMethodName(), payload.getParameterType());
+             invoke = method.invoke(ref, payload.getParameterValue()); // 调用方法获取到返回值，然后写会客户端
+        }
+
 
 //       TODO 封装响应对象，返回数据 //
         LRpcRespose lRpcRespose = new LRpcRespose();
         lRpcRespose.setBody(invoke);
         lRpcRespose.setCode(ResposeCode.CORRENT_CODE.getCode());
         lRpcRespose.setCompressType(lRpcRequest.getCompressType()); // 压缩类型
+        lRpcRespose.setTimestamp(lRpcRequest.getTimestamp());
         lRpcRespose.setSerializationType(lRpcRequest.getSerializationType());  // 序列化类型
         lRpcRespose.setRequestId(lRpcRequest.getRequestId());  // 请求id
         log.info("方法调用完成");

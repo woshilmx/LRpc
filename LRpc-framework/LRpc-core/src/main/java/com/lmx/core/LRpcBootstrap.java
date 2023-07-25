@@ -6,6 +6,7 @@ import com.lmx.core.discovery.Registry;
 import com.lmx.core.handler.LRpcRequestByteToMessageDecoder;
 import com.lmx.core.handler.LRpcReposeMessageToByteEncoder;
 import com.lmx.core.handler.LRpcServerHandler;
+import com.lmx.core.heartbeat.HeartbeatDetection;
 import com.lmx.core.loadbalancer.LoadBalancer;
 import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
 import com.lmx.core.serialization.SerializaFactory;
@@ -35,6 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Data
 public class LRpcBootstrap {
+    //    保存的是可用服务的响应时间
+    public static final Map<InetSocketAddress, Long> SERVICE_RESPOSE_TIME = new ConcurrentHashMap<>(16);
     private static final LRpcBootstrap lRpcBootstrap = new LRpcBootstrap();
     private String applicationName = "default";
     private RegistryConfig registryConfig;
@@ -58,7 +61,7 @@ public class LRpcBootstrap {
      */
     private Registry registry;
 
-    public final static int SERVICE_PORT = 8890;
+    public final static int SERVICE_PORT = 8893;
     public static String SERIALIZA_TYPE = "jdk"; // 序列化的方式,默认使用jdk
     public static String COMPRESS_TYPE = "gzip"; // 压缩的方式，默认使用gzip
     public static LoadBalancer LOADBALANCER = new RoundLoadBalancer(); // 默认使用轮询的负载均衡策略
@@ -157,6 +160,8 @@ public class LRpcBootstrap {
      */
     public LRpcBootstrap reference(ReferenceConfig<?> reference) {
         reference.setRegistry(this.registry);
+//        进行心跳检测
+        HeartbeatDetection.startHeartbeatTask(reference.getInterfancecomsumer().getName());
         return this;
     }
 

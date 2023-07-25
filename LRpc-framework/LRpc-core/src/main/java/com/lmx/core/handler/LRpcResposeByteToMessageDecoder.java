@@ -73,6 +73,7 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
         long fullLength = in.readInt();
         log.info("请求头长度{},总长度{}", headerLength, fullLength);
         byte code = in.readByte();
+        long timestap = in.readLong();
         byte serializationType = in.readByte();
         byte compressType = in.readByte();
         long requestId = in.readLong();
@@ -80,6 +81,7 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
         LRpcRespose lRpcRespose = new LRpcRespose();
         lRpcRespose.setRequestId(requestId);
         lRpcRespose.setCode(code);
+        lRpcRespose.setTimestamp(timestap);
         lRpcRespose.setCompressType(compressType);
         lRpcRespose.setSerializationType(serializationType);
 
@@ -87,16 +89,17 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
         //        普通请求解析载荷
 
 //        try {
-        byte[] payloadbyte = new byte[(int) (fullLength - headerLength)];
+        if (fullLength - headerLength != 0) {
+            byte[] payloadbyte = new byte[(int) (fullLength - headerLength)];
 
-        in.readBytes(payloadbyte);
+            in.readBytes(payloadbyte);
 
-        //        TODO 解压缩
-        final Compress compress = CompressFactory.getCompressWapper(lRpcRespose.getCompressType()).getCompress();
-        payloadbyte = compress.deCompress(payloadbyte);
-        //        TODO   反序列化,现在此处默认使用JDK提供的序列化方式
-        final Serializa serializa = SerializaFactory.getSerializa(serializationType).getSerializa();
-        final Object body = serializa.deSerializa(payloadbyte, Object.class);
+            //        TODO 解压缩
+            final Compress compress = CompressFactory.getCompressWapper(lRpcRespose.getCompressType()).getCompress();
+            payloadbyte = compress.deCompress(payloadbyte);
+            //        TODO   反序列化,现在此处默认使用JDK提供的序列化方式
+            final Serializa serializa = SerializaFactory.getSerializa(serializationType).getSerializa();
+            final Object body = serializa.deSerializa(payloadbyte, Object.class);
 
 //            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(payloadbyte);
 //
@@ -104,7 +107,9 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
 //
 //            objectInputStream = new ObjectInputStream(byteArrayInputStream);
 //            Object body = objectInputStream.readObject();
-        lRpcRespose.setBody(body);
+            lRpcRespose.setBody(body);
+        }
+
 //        } catch (IOException | ClassNotFoundException e) {
 //            log.error("载荷解析失败");
 //            throw new RuntimeException(e);

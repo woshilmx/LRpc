@@ -6,7 +6,9 @@ import com.lmx.core.discovery.Registry;
 import com.lmx.core.loadbalancer.LoadBalancer;
 import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
 import com.lmx.core.messageenum.RequestTypeEnum;
+import com.lmx.core.messageenum.ResposeCode;
 import com.lmx.core.serialization.SerializaFactory;
+import com.lmx.core.transport.message.LRpcRespose;
 import com.lmx.generator.IDGenerator;
 import com.lmx.core.netty.NettyBootstrapInitialization;
 import com.lmx.core.transport.message.LRpcRequest;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -100,6 +103,7 @@ public class NettyInvovationHandler implements InvocationHandler {
                 .compressType(CompressFactory.getCompressWapper(LRpcBootstrap.COMPRESS_TYPE).getCode())
                 .serializationType(SerializaFactory.getSerializa(LRpcBootstrap.SERIALIZA_TYPE).getCode())
                 .requestType(RequestTypeEnum.COMMEN_REQUEST.getCode()) // 构建请求
+                .timestamp(new Date().getTime())
                 .payload(build)
                 .build();
 
@@ -118,7 +122,14 @@ public class NettyInvovationHandler implements InvocationHandler {
         });
 //                保存当前的CompletableFuture
         LRpcBootstrap.PEDDING_Future.put(id, objectCompletableFuture);
-        return objectCompletableFuture.get(5, TimeUnit.SECONDS);
+
+//        返回的是响应的结果
+        LRpcRespose lRpcRespose = (LRpcRespose) objectCompletableFuture.get(3, TimeUnit.SECONDS);
+        if (lRpcRespose.getCode() == ResposeCode.CORRENT_CODE.getCode()) {
+            return lRpcRespose.getBody();
+        } else {
+            throw new RuntimeException("调用失败");
+        }
 
     }
 }

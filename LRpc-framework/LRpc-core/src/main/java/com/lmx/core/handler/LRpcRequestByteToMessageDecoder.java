@@ -77,6 +77,7 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
         long fullLength = in.readInt();
         log.info("请求头长度{},总长度{}", headerLength, fullLength);
         byte requestType = in.readByte();
+        final long timestap = in.readLong();
         byte serializationType = in.readByte();
         byte compressType = in.readByte();
         long requestId = in.readLong();
@@ -85,6 +86,7 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
         lRpcRequest.setRequestId(requestId);
         lRpcRequest.setRequestType(requestType);
         lRpcRequest.setCompressType(compressType);
+        lRpcRequest.setTimestamp(timestap);
         lRpcRequest.setSerializationType(serializationType);
 
 
@@ -93,20 +95,20 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
             return lRpcRequest;
         }
 
-
 //        普通请求解析载荷
 
 
-        byte[] payloadbyte = new byte[(int) (fullLength - headerLength)];
+        if (fullLength-headerLength!=0){
+            byte[] payloadbyte = new byte[(int) (fullLength - headerLength)];
 
-        in.readBytes(payloadbyte);
-        //        TODO 解压缩
-        final Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
-        payloadbyte = compress.deCompress(payloadbyte);
-//      TODO   反序列化
-        SerializaWapper serializaWapper = SerializaFactory.getSerializa(lRpcRequest.getSerializationType());
-        Serializa serializa = serializaWapper.getSerializa();
-        Payload payload = serializa.deSerializa(payloadbyte, Payload.class);
+            in.readBytes(payloadbyte);
+            //        TODO 解压缩
+            final Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
+            payloadbyte = compress.deCompress(payloadbyte);
+//          TODO   反序列化
+            SerializaWapper serializaWapper = SerializaFactory.getSerializa(lRpcRequest.getSerializationType());
+            Serializa serializa = serializaWapper.getSerializa();
+            Payload payload = serializa.deSerializa(payloadbyte, Payload.class);
 //
 //            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(payloadbyte);
 //
@@ -114,8 +116,9 @@ public class LRpcRequestByteToMessageDecoder extends LengthFieldBasedFrameDecode
 //
 //            objectInputStream = new ObjectInputStream(byteArrayInputStream);
 //            Payload payload = (Payload) objectInputStream.readObject();
-        lRpcRequest.setPayload(payload);
-        log.info("请求的数据为{}", lRpcRequest.toString());
+            lRpcRequest.setPayload(payload);
+            log.info("请求的数据为{}", lRpcRequest.toString());
+        }
         return lRpcRequest;
     }
 }

@@ -4,6 +4,7 @@ package com.lmx.core.transport.message;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 封装报文，
@@ -31,6 +32,10 @@ public class LRpcRequest implements Serializable {
     private byte compressType;
 
 
+    /**
+     * 请求的时间戳
+     */
+    private long timestamp;
     /**
      * 序列化方式
      */

@@ -9,6 +9,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * 客户端使用的方法
  */
 @Slf4j
+@Data
 public class ReferenceConfig<T> {
     private Class<T> interfancecomsumer;
 

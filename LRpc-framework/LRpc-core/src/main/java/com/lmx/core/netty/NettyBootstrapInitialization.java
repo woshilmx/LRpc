@@ -28,6 +28,8 @@ public class NettyBootstrapInitialization {
                         pipeline.addLast(new MyClientHandler());
                     }
                 });
+
+
     }
 
     //    返回bootstrap

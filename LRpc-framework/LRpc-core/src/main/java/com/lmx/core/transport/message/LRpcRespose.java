@@ -4,6 +4,7 @@ package com.lmx.core.transport.message;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 封装响应对象报文，
@@ -21,12 +22,17 @@ public class LRpcRespose implements Serializable {
     private long requestId;
 
 
-
     /**
      * 状态码
      * 1——成功  2——异常
-     * */
+     */
     private byte code;
+
+
+    /**
+     * 时间戳
+     */
+    private long timestamp;
 
     /**
      * 压缩类型

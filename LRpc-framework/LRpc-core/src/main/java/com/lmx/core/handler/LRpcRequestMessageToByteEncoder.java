@@ -46,23 +46,32 @@ public class LRpcRequestMessageToByteEncoder extends MessageToByteEncoder<LRpcRe
         int i = byteBuf.writerIndex(); // 整体报文长度的起始位置
         byteBuf.writerIndex(i + MessageContant.FULL_FILED_LENGTH); // 从当前位置向后移动四个字节
         byteBuf.writeByte(lRpcRequest.getRequestType());
+        byteBuf.writeLong(lRpcRequest.getTimestamp()); // 写出时间戳
         byteBuf.writeByte(lRpcRequest.getSerializationType());
         byteBuf.writeByte(lRpcRequest.getCompressType());
         byteBuf.writeLong(lRpcRequest.getRequestId());
-//        序列化
-        Serializa serializa = SerializaFactory.getSerializa(lRpcRequest.getSerializationType()).getSerializa();
-        byte[] bytesByPayload = serializa.serializa(lRpcRequest.getPayload());
+
+        int patloadLength = 0;
+        if (lRpcRequest.getPayload() != null) {
+            //        序列化
+            Serializa serializa = SerializaFactory.getSerializa(lRpcRequest.getSerializationType()).getSerializa();
+            byte[] bytesByPayload = serializa.serializa(lRpcRequest.getPayload());
 
 //        进行压缩
-        Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
-        bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
+//        if (bytesByPayload!=null && bytesByPayload.length!=0){
+            Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
+            bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
+//        }
+//          byte[] bytesByPayload = getBytesByPayload(); // 获取载荷的字符
+            byteBuf.writeBytes(bytesByPayload);
+            patloadLength = bytesByPayload.length;
+        }
 
-//        byte[] bytesByPayload = getBytesByPayload(); // 获取载荷的字符
-        byteBuf.writeBytes(bytesByPayload);
+
         int currentpostion = byteBuf.writerIndex(); // 保存当前位置
         byteBuf.writerIndex(i);
-        byteBuf.writeInt(MessageContant.HEADER_LENGTH + bytesByPayload.length);
-        log.info("请求头长度{},载荷长度{}", MessageContant.HEADER_LENGTH, bytesByPayload.length);
+        byteBuf.writeInt(MessageContant.HEADER_LENGTH + patloadLength);
+        log.info("请求头长度{},载荷长度{}", MessageContant.HEADER_LENGTH, patloadLength);
         byteBuf.writerIndex(currentpostion); // 写指针归为
 
     }
