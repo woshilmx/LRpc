@@ -3,14 +3,17 @@ package com.lmx.core.loadbalancer.iml;
 import com.lmx.core.LRpcBootstrap;
 import com.lmx.core.loadbalancer.AbstractLoadBalancer;
 import com.lmx.core.loadbalancer.Selector;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 最短响应时间负载均衡算法
  */
+@Slf4j
 public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
 
     @Override
@@ -22,12 +25,14 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
      * 最短响应时间选择器类
      */
     private static class MinimumResponseTimeSelector implements Selector {
+        private static AtomicInteger i = new AtomicInteger(0);
 
         @Override
         public InetSocketAddress getSelector(List<InetSocketAddress> serviceAddresses) {
             // 检查服务地址列表是否为空或null
             if (LRpcBootstrap.SERVICE_RESPOSE_TIME.isEmpty()) {
                 // 如果为空，返回第一个
+//                log.info("选择{}次", i.incrementAndGet());
                 return serviceAddresses.get(0);
             }
 
@@ -45,7 +50,7 @@ public class MinimumResponseTimeLoadBalancer extends AbstractLoadBalancer {
                     selectedAddress = address;
                 }
             }
-
+            log.info("最短响应时间选择{}次", i.incrementAndGet());
             return selectedAddress;
         }
     }

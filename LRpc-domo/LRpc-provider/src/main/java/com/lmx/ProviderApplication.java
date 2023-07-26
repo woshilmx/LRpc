@@ -4,7 +4,7 @@ import com.lmx.core.LRpcBootstrap;
 import com.lmx.core.ProtocolConfig;
 import com.lmx.core.RegistryConfig;
 import com.lmx.core.ServiceConfig;
-import com.lmx.service.HelloService;
+import com.commen.service.HelloService;
 import com.lmx.service.iml.HelloServiceIml;
 
 /**
@@ -24,7 +24,9 @@ public class ProviderApplication {
                 .application("first-Lrpc-provider")
                 .registry(new RegistryConfig("zookeeper://114.116.233.39:2181"))
                 .protocol(new ProtocolConfig("Lrpc", -1))
-                .service(service)
+//                .service(service)
+                .scanService("com.lmx")
                 .start();
     }
+
 }

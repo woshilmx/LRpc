@@ -92,4 +92,10 @@ public class LRpcRequestMessageToByteEncoder extends MessageToByteEncoder<LRpcRe
 //        }
 //
 //    }
+@Override
+public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    ctx.channel().close();
+    throw new RuntimeException(cause);
+
+}
 }

@@ -116,4 +116,10 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
 //        }
         return lRpcRespose;
     }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.channel().close();
+        throw new RuntimeException(cause);
+
+    }
 }

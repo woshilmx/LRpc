@@ -1,13 +1,16 @@
 package com.lmx.service.iml;
 
-import com.lmx.service.HelloService;
+import com.commen.service.HelloService;
+import com.commen.service.Student;
+import com.lmx.core.annotation.Lrpc;
 
+@Lrpc
 public class HelloServiceIml implements HelloService {
 
     @Override
-    public String hello(String msg) {
+    public Student hello(String msg) {
 
-        return "hello,consumer:" + msg;
+        return new Student("hello,consumer:" + msg);
 
     }
 }

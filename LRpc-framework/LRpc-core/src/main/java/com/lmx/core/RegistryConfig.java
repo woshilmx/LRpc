@@ -3,6 +3,7 @@ package com.lmx.core;
 
 import com.lmx.core.discovery.Registry;
 import com.lmx.core.discovery.iml.ZookeeperRegistry;
+import lombok.ToString;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +11,7 @@ import java.net.URISyntaxException;
 /**
  * 关于注册中心配置的选项
  */
+@ToString
 public class RegistryConfig {
     private String connectString;
 

@@ -46,7 +46,7 @@ public class NettyInvovationHandler implements InvocationHandler {
 
 //        创建一个负载均衡器，在负载均衡器中，选择合适的节点
 //        RoundLoadBalancer roundLoadBalancer = new RoundLoadBalancer(); // 使用工厂
-        LoadBalancer loadbalancer = LRpcBootstrap.LOADBALANCER;
+        LoadBalancer loadbalancer = LRpcBootstrap.getInstance().getConfiguration().getLOADBALANCER();
 
 
         InetSocketAddress ipAdress = loadbalancer.getLoadBalance(serviceName);
@@ -57,8 +57,8 @@ public class NettyInvovationHandler implements InvocationHandler {
 
 //                取出与当前服务接口相关联的通过
         Channel serviceChannel = LRpcBootstrap.SERVER_CHANNEL_CACHE.get(ipAdress);
-//                如果channel不存在，重新连接
-        if (serviceChannel == null) {
+//                如果channel不存在，重新连接,或者为关闭状态
+        if (serviceChannel == null || !serviceChannel.isOpen()) {
             // 获取唯一的bootstrap对象，单例
             Bootstrap bootstrap = NettyBootstrapInitialization.getBootstrap();
 
@@ -97,11 +97,11 @@ public class NettyInvovationHandler implements InvocationHandler {
                 .build();
 //        封装请求
 
-        final Long id = LRpcBootstrap.idGenerator.getId();
+        final Long id = LRpcBootstrap.getInstance().getConfiguration().getIdGenerator().getId();
         LRpcRequest lRpcRequest = LRpcRequest.builder()
                 .requestId(id) // 获取唯一请求id
-                .compressType(CompressFactory.getCompressWapper(LRpcBootstrap.COMPRESS_TYPE).getCode())
-                .serializationType(SerializaFactory.getSerializa(LRpcBootstrap.SERIALIZA_TYPE).getCode())
+                .compressType(CompressFactory.getCompressWapper(LRpcBootstrap.getInstance().getConfiguration().getCOMPRESS_TYPE()).getCode())
+                .serializationType(SerializaFactory.getSerializa(LRpcBootstrap.getInstance().getConfiguration().getSERIALIZA_TYPE()).getCode())
                 .requestType(RequestTypeEnum.COMMEN_REQUEST.getCode()) // 构建请求
                 .timestamp(new Date().getTime())
                 .payload(build)
@@ -125,6 +125,7 @@ public class NettyInvovationHandler implements InvocationHandler {
 
 //        返回的是响应的结果
         LRpcRespose lRpcRespose = (LRpcRespose) objectCompletableFuture.get(3, TimeUnit.SECONDS);
+
         if (lRpcRespose.getCode() == ResposeCode.CORRENT_CODE.getCode()) {
             return lRpcRespose.getBody();
         } else {

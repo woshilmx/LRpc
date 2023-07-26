@@ -8,10 +8,12 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 public class MyClientHandler extends SimpleChannelInboundHandler<LRpcRespose> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LRpcRespose lRpcRespose) throws Exception {
@@ -30,4 +32,12 @@ public class MyClientHandler extends SimpleChannelInboundHandler<LRpcRespose> {
         objectCompletableFuture.complete(lRpcRespose);
 
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("{}抛出异常:{}", ctx.channel().remoteAddress(), cause.getMessage());
+        ctx.channel().close();
+
+    }
+
 }

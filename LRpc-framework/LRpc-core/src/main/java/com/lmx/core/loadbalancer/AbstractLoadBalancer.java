@@ -1,6 +1,7 @@
 package com.lmx.core.loadbalancer;
 
 import com.lmx.core.LRpcBootstrap;
+import com.lmx.core.configure.Configuration;
 import com.lmx.core.discovery.Registry;
 
 import java.net.InetSocketAddress;
@@ -10,16 +11,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractLoadBalancer implements LoadBalancer {
 
 
-    private Registry registry;
+//    private Registry registry;
     private List<InetSocketAddress> serviceIntaddress;
 
     public AbstractLoadBalancer() {
-        this.registry = LRpcBootstrap.getInstance().getRegistry();
+//        registry = LRpcBootstrap.getInstance().getRegistry();
+
     }
 
 
     @Override
     public InetSocketAddress getLoadBalance(String serviceName) {
+       Registry registry = LRpcBootstrap.getInstance().getRegistry();
         List<InetSocketAddress> inetSocketAddresses = LRpcBootstrap.STRING_LIST_MAP.get(serviceName);
 //        重新拉取列表
         if (inetSocketAddresses == null) {
