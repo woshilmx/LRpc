@@ -1,0 +1,11 @@
+<!ELEMENT configuration (port, applicationname, registryAddress, IDGenerator, serialization, compress, loadblance)>
+        <!ELEMENT port (#PCDATA)>
+        <!ELEMENT applicationname (#PCDATA)>
+        <!ELEMENT registryAddress (#PCDATA)>
+        <!ELEMENT IDGenerator (dataCenter, machineId)>
+        <!ELEMENT dataCenter (#PCDATA)>
+        <!ELEMENT machineId (#PCDATA)>
+        <!ELEMENT serialization (#PCDATA)>
+        <!ELEMENT compress (#PCDATA)>
+        <!ELEMENT loadblance (#PCDATA)>
+        <!ATTLIST loadblance class CDATA #IMPLIED>

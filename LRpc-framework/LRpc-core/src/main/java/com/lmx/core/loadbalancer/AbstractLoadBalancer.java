@@ -16,13 +16,12 @@ public abstract class AbstractLoadBalancer implements LoadBalancer {
 
     public AbstractLoadBalancer() {
 //        registry = LRpcBootstrap.getInstance().getRegistry();
-
     }
 
 
     @Override
     public InetSocketAddress getLoadBalance(String serviceName) {
-       Registry registry = LRpcBootstrap.getInstance().getRegistry();
+       Registry registry = LRpcBootstrap.getInstance().getConfiguration().getRegistryConfig().getRegistry();
         List<InetSocketAddress> inetSocketAddresses = LRpcBootstrap.STRING_LIST_MAP.get(serviceName);
 //        重新拉取列表
         if (inetSocketAddresses == null) {

@@ -98,6 +98,7 @@ public class NettyInvovationHandler implements InvocationHandler {
 //        封装请求
 
         final Long id = LRpcBootstrap.getInstance().getConfiguration().getIdGenerator().getId();
+        log.info("序列化方式是"+LRpcBootstrap.getInstance().getConfiguration().getSERIALIZA_TYPE());
         LRpcRequest lRpcRequest = LRpcRequest.builder()
                 .requestId(id) // 获取唯一请求id
                 .compressType(CompressFactory.getCompressWapper(LRpcBootstrap.getInstance().getConfiguration().getCOMPRESS_TYPE()).getCode())

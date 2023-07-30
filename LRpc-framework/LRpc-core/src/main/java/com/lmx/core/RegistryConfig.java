@@ -27,19 +27,25 @@ public class RegistryConfig {
         this.connectString = connectString;
     }
 
+    public static Registry registry;
 
     /**
      * 获取注册中心
      */
     public Registry getRegistry() {
+//        如果
+        if (registry != null) {
+            return registry;
+        }
 //        清除空格，字母转化为小写
         String registryType = getRegistryType(connectString).trim().toLowerCase();
         String host = getHost(connectString);
         int port = getPort(connectString);
         if (registryType.equals("zookeeper")) {
-            return new ZookeeperRegistry(host, port);
+            ZookeeperRegistry zookeeperRegistry = new ZookeeperRegistry(host, port);
+            registry = zookeeperRegistry;
+            return zookeeperRegistry;
         }
-
         return null;
     }
 
@@ -56,7 +62,6 @@ public class RegistryConfig {
             e.printStackTrace();
             throw new RuntimeException("注册中心地址异常");
         }
-
 
     }
 

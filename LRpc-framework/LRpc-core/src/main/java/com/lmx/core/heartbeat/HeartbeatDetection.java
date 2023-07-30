@@ -57,7 +57,7 @@ public class HeartbeatDetection {
      * 心跳检测的方法,订阅哪个方法，启动哪个的心跳检测
      */
     public static void heartBeat(String serviceName) {
-         Registry registry = LRpcBootstrap.getInstance().getRegistry();
+         Registry registry = LRpcBootstrap.getInstance().getConfiguration().getRegistryConfig().getRegistry();
         List<InetSocketAddress> lookup = registry.lookup(serviceName);
         log.info(serviceName + "正在进行心跳检测");
 
