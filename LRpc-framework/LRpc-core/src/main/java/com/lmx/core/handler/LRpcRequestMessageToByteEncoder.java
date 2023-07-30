@@ -54,12 +54,12 @@ public class LRpcRequestMessageToByteEncoder extends MessageToByteEncoder<LRpcRe
         int patloadLength = 0;
         if (lRpcRequest.getPayload() != null) {
             //        序列化
-            Serializa serializa = SerializaFactory.getSerializa(lRpcRequest.getSerializationType()).getSerializa();
+            Serializa serializa = SerializaFactory.getSerializa(lRpcRequest.getSerializationType()).getData();
             byte[] bytesByPayload = serializa.serializa(lRpcRequest.getPayload());
 
 //        进行压缩
 //        if (bytesByPayload!=null && bytesByPayload.length!=0){
-            Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getCompress();
+            Compress compress = CompressFactory.getCompressWapper(lRpcRequest.getCompressType()).getData();
             bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
 //        }
 //          byte[] bytesByPayload = getBytesByPayload(); // 获取载荷的字符

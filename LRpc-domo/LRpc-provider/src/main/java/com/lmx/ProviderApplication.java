@@ -22,7 +22,7 @@ public class ProviderApplication {
 // 启动 Dubbo
         LRpcBootstrap.getInstance()
                 .application("first-Lrpc-provider")
-                .registry(new RegistryConfig("zookeeper://114.116.233.39:2181"))
+//                .registry(new RegistryConfig("zookeeper://114.116.233.39:2181"))
                 .protocol(new ProtocolConfig("Lrpc", -1))
 //                .service(service)
                 .scanService("com.lmx")

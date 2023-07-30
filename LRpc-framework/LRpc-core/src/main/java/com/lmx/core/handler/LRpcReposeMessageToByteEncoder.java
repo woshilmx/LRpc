@@ -55,13 +55,13 @@ public class LRpcReposeMessageToByteEncoder extends MessageToByteEncoder<LRpcRes
 
         int bodyLength = 0;
         if (lRpcRespose.getBody() != null) {
-            Serializa serializa = SerializaFactory.getSerializa(lRpcRespose.getSerializationType()).getSerializa();
+            Serializa serializa = SerializaFactory.getSerializa(lRpcRespose.getSerializationType()).getData();
             byte[] bytesByPayload = serializa.serializa(lRpcRespose.getBody()); // 获取载荷的字符
 //        压缩
             log.info("准备获取压缩器");
             Compress compress = CompressFactory.getCompressWapper
                     (lRpcRespose.getCompressType()).
-                    getCompress();
+                    getData();
             log.info("获取压缩器");
             bytesByPayload = compress.compress(bytesByPayload); // 执行压缩
 //        byte[] bytesByPayload = getBytesByPayload(lRpcRespose.getBody()); // 获取载荷的字符

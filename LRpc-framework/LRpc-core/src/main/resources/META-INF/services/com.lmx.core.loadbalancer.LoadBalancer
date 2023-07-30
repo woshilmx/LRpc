@@ -1,0 +1,3 @@
+1-hash-com.lmx.core.loadbalancer.iml.HashLoadBalancer
+2-MinimumResponseTime-micom.lmx.core.loadbalancer.iml.MinimumResponseTimeLoadBalancer
+3-Round-com.lmx.core.loadbalancer.iml.RoundLoadBalancer

@@ -95,10 +95,10 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
             in.readBytes(payloadbyte);
 
             //        TODO 解压缩
-            final Compress compress = CompressFactory.getCompressWapper(lRpcRespose.getCompressType()).getCompress();
+            final Compress compress = CompressFactory.getCompressWapper(lRpcRespose.getCompressType()).getData();
             payloadbyte = compress.deCompress(payloadbyte);
             //        TODO   反序列化,现在此处默认使用JDK提供的序列化方式
-            final Serializa serializa = SerializaFactory.getSerializa(serializationType).getSerializa();
+            final Serializa serializa = SerializaFactory.getSerializa(serializationType).getData();
             final Object body = serializa.deSerializa(payloadbyte, Object.class);
 
 //            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(payloadbyte);
