@@ -6,6 +6,8 @@ import com.lmx.core.ProtocolConfig;
 import com.lmx.core.RegistryConfig;
 import com.lmx.core.loadbalancer.LoadBalancer;
 import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
+import com.lmx.core.protection.CircuitBreaker;
+import com.lmx.core.protection.TokenBucketRateLimter;
 import com.lmx.generator.IDGenerator;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +17,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 全局的配置类  先走代码-再走xml-最后默认
@@ -59,6 +65,15 @@ public class Configuration {
      * 负载均衡的方式
      */
     public LoadBalancer LOADBALANCER = new RoundLoadBalancer(); // 默认
+    /**
+     * 针对不同ip的限流器
+     */
+    public Map<SocketAddress, TokenBucketRateLimter> rate_ip_limter = new ConcurrentHashMap<>(16);
+    /**
+     * 客户端使用的熔断器
+     */
+    public Map<InetSocketAddress, CircuitBreaker> CircuitBreaker_Ip_Map = new ConcurrentHashMap<>(16);
+    private String group = "default";
 
     //    读取xml文件
     public Configuration() {
@@ -79,4 +94,11 @@ public class Configuration {
     }
 
 
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return group;
+    }
 }

@@ -1,7 +1,10 @@
 package com.lmx.core.handler;
 
+import com.lmx.core.LRpcBootstrap;
 import com.lmx.core.compress.Compress;
 import com.lmx.core.compress.CompressFactory;
+import com.lmx.core.messageenum.ResposeCode;
+import com.lmx.core.protection.CircuitBreaker;
 import com.lmx.core.serialization.Serializa;
 import com.lmx.core.serialization.SerializaFactory;
 import com.lmx.core.transport.message.LRpcRequest;
@@ -16,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Map;
 
 
 /**
@@ -32,7 +38,7 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
 
-        return decodeLRpcReuqest(in);
+        return decodeLRpcReuqest(ctx, in);
 
     }
 
@@ -54,9 +60,10 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
      * body 负载 payload
      * 将LRpcRequest转化为报文的处理器
      */
-    private Object decodeLRpcReuqest(ByteBuf in) {
+    private Object decodeLRpcReuqest(ChannelHandlerContext ctx, ByteBuf in) {
         byte[] bytes = new byte[MessageContant.MOSHU_NAME.length];
         in.readBytes(bytes);
+        final byte[] moshuName = MessageContant.MOSHU_NAME;
 //        判断协议是否一致
         for (int i = 0; i < MessageContant.MOSHU_NAME.length; i++) {
             if (bytes[i] != MessageContant.MOSHU_NAME[i]) {
@@ -110,14 +117,39 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
             lRpcRespose.setBody(body);
         }
 
+        if (lRpcRespose.getCode() == ResposeCode.RATE_LIMATE.getCode() || lRpcRespose.getCode() == ResposeCode.ERROR_CODE.getCode())
+        {
+            log.info("被限流了");
+            InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+            final Map<InetSocketAddress, CircuitBreaker> circuitBreaker_ip_map = LRpcBootstrap.getInstance().getConfiguration().CircuitBreaker_Ip_Map;
+            CircuitBreaker circuitBreaker = circuitBreaker_ip_map.get(socketAddress);
+            if (circuitBreaker == null) {
+                circuitBreaker = new CircuitBreaker(3, 1000);
+                circuitBreaker_ip_map.put(socketAddress, circuitBreaker);
+            }
+
+            circuitBreaker.recordFailure();
+        }
+
 //        } catch (IOException | ClassNotFoundException e) {
 //            log.error("载荷解析失败");
 //            throw new RuntimeException(e);
 //        }
         return lRpcRespose;
     }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        final Map<InetSocketAddress, CircuitBreaker> circuitBreaker_ip_map = LRpcBootstrap.getInstance().getConfiguration().CircuitBreaker_Ip_Map;
+        CircuitBreaker circuitBreaker = circuitBreaker_ip_map.get(socketAddress);
+        if (circuitBreaker == null) {
+            circuitBreaker = new CircuitBreaker(3, 1000);
+            circuitBreaker_ip_map.put(socketAddress, circuitBreaker);
+        }
+
+        circuitBreaker.recordFailure();
+
         ctx.channel().close();
         throw new RuntimeException(cause);
 

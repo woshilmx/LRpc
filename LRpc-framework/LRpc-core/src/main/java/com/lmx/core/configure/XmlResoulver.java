@@ -54,6 +54,10 @@ public class XmlResoulver {
             if (StringUtils.isNotBlank(registryAddress)) {
                 configuration.registryConfig = new RegistryConfig(registryAddress);
             }
+            String group = xpath.evaluate("/configuration/group", document);
+            if (StringUtils.isNotBlank(group)) {
+                configuration.setGroup(group);
+            }
 
             int dataCenterId = Integer.parseInt(xpath.evaluate("/configuration/IDGenerator/dataCenter", document));
             int machineId = Integer.parseInt(xpath.evaluate("/configuration/IDGenerator/machineId", document));

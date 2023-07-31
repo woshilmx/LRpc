@@ -1,7 +1,7 @@
 package com.lmx.core;
 
 
-import com.lmx.core.annotation.Lrpc;
+import com.lmx.annotation.Lrpc;
 import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.configure.Configuration;
 import com.lmx.core.discovery.Registry;
@@ -10,9 +10,7 @@ import com.lmx.core.handler.LRpcReposeMessageToByteEncoder;
 import com.lmx.core.handler.LRpcServerHandler;
 import com.lmx.core.heartbeat.HeartbeatDetection;
 import com.lmx.core.loadbalancer.LoadBalancer;
-import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
 import com.lmx.core.serialization.SerializaFactory;
-import com.lmx.generator.IDGenerator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -26,10 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.ZooKeeper;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.*;
@@ -282,6 +278,8 @@ public class LRpcBootstrap {
         for (Class c : aclassList) {
 
             try {
+                Lrpc annotation = (Lrpc) c.getAnnotation(Lrpc.class);
+                final String group = annotation.group();
                 final Object o = c.getConstructor().newInstance();
 //                service.setRef(o);
 
@@ -291,6 +289,8 @@ public class LRpcBootstrap {
                     ServiceConfig<Object> service = new ServiceConfig<>();
                     service.setRef(o);
                     service.setInterface(interfance);
+                    service.setGroup(group);
+//                    发布接口
                     service(service);
                 }
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -342,5 +342,11 @@ public class LRpcBootstrap {
 
     public static void main(String[] args) {
         LRpcBootstrap.getInstance().scanService("com.lmx.core");
+    }
+
+    public LRpcBootstrap group(String group) {
+
+        configuration.setGroup(group);
+        return this;
     }
 }

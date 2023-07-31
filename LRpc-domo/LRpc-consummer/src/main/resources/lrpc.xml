@@ -20,6 +20,8 @@
     <!--    压缩的方式-->
     <compress>gzip</compress>
 
+    <group>hello</group>
     <!--    负载均衡的策略-->
-    <loadblance  class="com.lmx.core.loadbalancer.iml.RoundLoadBalancer"></loadblance>
+    <loadblance class="com.lmx.core.loadbalancer.iml.RoundLoadBalancer"></loadblance>
+
 </configuration>

@@ -7,6 +7,7 @@ package com.lmx.core;
 public class ServiceConfig<T> {
     private Class<T> interfaceprovider;
     private Object ref;
+    private String group="default";
 
     public void setInterface(Class<T> interfaceprovider) {
         this.interfaceprovider = interfaceprovider;
@@ -23,5 +24,13 @@ public class ServiceConfig<T> {
 
     public void setRef(Object ref) {
         this.ref = ref;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getGroup() {
+        return group;
     }
 }

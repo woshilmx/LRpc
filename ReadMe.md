@@ -298,3 +298,17 @@ public void updateTest()throws InterruptedException,KeeperException{
 
 ### 添加netty实现基础通信
 
+### 异常重试
+
+### 服务端限流
+
+- 令牌桶算法
+
+### 客户端熔断
+
+- 熔断器
+
+### 流量分组
+
+
+

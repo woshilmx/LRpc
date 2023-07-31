@@ -54,11 +54,14 @@ public class ZookeeperRegistry implements Registry {
 
         ZookeeperUtil.createNode(zooKeeper, zookeepNode, null);
 
-
+//       创建组名
+        String groupPath = path + "/" + service.getGroup();
+        ZookeepNode groupNode = new ZookeepNode(groupPath, null, CreateMode.PERSISTENT);
+        ZookeeperUtil.createNode(zooKeeper, groupNode, null);
 //        保存临时节点,临时节点是ip:port
 
 
-        String ipNodepath = path + "/" + IpUtil.getIp() + ":" + serviceyport; // 这个端口应该是netty的端口
+        String ipNodepath = groupPath + "/" + IpUtil.getIp() + ":" + serviceyport; // 这个端口应该是netty的端口
 
 //        保存临时节点
         ZookeepNode ipNode = new ZookeepNode(ipNodepath, null, CreateMode.EPHEMERAL);// 这个节点是临时节点
@@ -91,8 +94,8 @@ public class ZookeeperRegistry implements Registry {
      * 拉取服务节点的动作
      */
     private List<InetSocketAddress> pullServiceNode(String serviceName) {
-        String path = Contanst.PROVIDER_PATH + serviceName;
-
+        String group = LRpcBootstrap.getInstance().getConfiguration().getGroup(); // 增加流量分组
+        String path = Contanst.PROVIDER_PATH + serviceName + "/" + group;
 //        获取该服务下所有可用节点
         List<String> ipAndHost = ZookeeperUtil.getChildNode(zooKeeper, path, new Watcher() {
             @Override

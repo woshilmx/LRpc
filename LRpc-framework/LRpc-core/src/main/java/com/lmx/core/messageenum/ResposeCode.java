@@ -9,7 +9,8 @@ import lombok.Data;
 
 public enum ResposeCode {
     CORRENT_CODE((byte) 1, "正确"),
-    ERROR_CODE((byte) 2, "失败");
+    ERROR_CODE((byte) 2, "失败"),
+    RATE_LIMATE((byte) 3, "限流");
 
     private byte code;
     private String message;
