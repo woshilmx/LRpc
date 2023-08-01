@@ -5,6 +5,7 @@ import com.lmx.core.LRpcBootstrap;
 import com.lmx.core.compress.CompressFactory;
 import com.lmx.core.discovery.Registry;
 import com.lmx.core.exception.CircuitBreakerException;
+import com.lmx.core.exception.ResposeException;
 import com.lmx.core.loadbalancer.LoadBalancer;
 import com.lmx.core.loadbalancer.iml.RoundLoadBalancer;
 import com.lmx.core.messageenum.RequestTypeEnum;
@@ -26,6 +27,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -148,6 +150,13 @@ public class NettyInvovationHandler implements InvocationHandler {
 
                     if (lRpcRespose.getCode() == ResposeCode.CORRENT_CODE.getCode()) {
                         return lRpcRespose.getBody();
+                    } else if (lRpcRespose.getCode() == ResposeCode.SHUTDOWM_CODE.getCode()) {
+                        log.error("服务端停机中");
+                        //        移除通道连接
+                        LRpcBootstrap.SERVER_CHANNEL_CACHE.remove(ipAdress);
+                        final List<InetSocketAddress> inetSocketAddresses = LRpcBootstrap.STRING_LIST_MAP.get(interfancecomsumer.getName());
+                        inetSocketAddresses.remove(inetSocketAddresses);
+                        throw new ResposeException(lRpcRespose.getCode(),"服务端停机，重新进行负载均衡");
                     }
 //                    else if (lRpcRespose.getCode() == ResposeCode.RATE_LIMATE.getCode()) {
 ////                    如果被限流了

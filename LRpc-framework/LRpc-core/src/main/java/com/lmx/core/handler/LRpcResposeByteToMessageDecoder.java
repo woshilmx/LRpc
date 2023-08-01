@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Map;
 
 
@@ -117,8 +118,7 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
             lRpcRespose.setBody(body);
         }
 
-        if (lRpcRespose.getCode() == ResposeCode.RATE_LIMATE.getCode() || lRpcRespose.getCode() == ResposeCode.ERROR_CODE.getCode())
-        {
+        if (lRpcRespose.getCode() == ResposeCode.RATE_LIMATE.getCode() || lRpcRespose.getCode() == ResposeCode.ERROR_CODE.getCode()) {
             log.info("被限流了");
             InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
             final Map<InetSocketAddress, CircuitBreaker> circuitBreaker_ip_map = LRpcBootstrap.getInstance().getConfiguration().CircuitBreaker_Ip_Map;
@@ -129,7 +129,12 @@ public class LRpcResposeByteToMessageDecoder extends LengthFieldBasedFrameDecode
             }
 
             circuitBreaker.recordFailure();
+        } else if (lRpcRespose.getCode() == ResposeCode.SHUTDOWM_CODE.getCode()) {
+            log.error("服务端停机中");
         }
+//        移除当前的连接
+        final SocketAddress key = ctx.channel().remoteAddress();
+
 
 //        } catch (IOException | ClassNotFoundException e) {
 //            log.error("载荷解析失败");

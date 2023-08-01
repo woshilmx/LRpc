@@ -11,6 +11,7 @@ import com.lmx.core.handler.LRpcServerHandler;
 import com.lmx.core.heartbeat.HeartbeatDetection;
 import com.lmx.core.loadbalancer.LoadBalancer;
 import com.lmx.core.serialization.SerializaFactory;
+import com.lmx.core.shudown.LrpcShutdoemHooh;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -137,6 +138,12 @@ public class LRpcBootstrap {
      * 启动服务端引导类
      */
     public void start() {
+
+//        实现优雅停机代码
+        Runtime.getRuntime().addShutdownHook(new LrpcShutdoemHooh());
+
+
+//        启动netty
         NioEventLoopGroup bossgroup = new NioEventLoopGroup();
         NioEventLoopGroup workgroup = new NioEventLoopGroup();
         try {

@@ -7,6 +7,7 @@ import com.lmx.core.configure.Configuration;
 import com.lmx.core.messageenum.RequestTypeEnum;
 import com.lmx.core.messageenum.ResposeCode;
 import com.lmx.core.protection.TokenBucketRateLimter;
+import com.lmx.core.shudown.ShudownHookContant;
 import com.lmx.core.transport.message.LRpcRequest;
 import com.lmx.core.transport.message.LRpcRespose;
 import com.lmx.core.transport.message.Payload;
@@ -29,6 +30,21 @@ public class LRpcServerHandler extends SimpleChannelInboundHandler<LRpcRequest> 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LRpcRequest lRpcRequest) throws Exception {
 
+//        如果是true
+        if (ShudownHookContant.IS_OPEN.get()) {
+            LRpcRespose lRpcRespose = new LRpcRespose();
+            lRpcRespose.setBody(null);
+            lRpcRespose.setCode(ResposeCode.SHUTDOWM_CODE.getCode()); //返回停机的响应
+            lRpcRespose.setCompressType(lRpcRequest.getCompressType()); // 压缩类型
+            lRpcRespose.setTimestamp(lRpcRequest.getTimestamp());
+            lRpcRespose.setSerializationType(lRpcRequest.getSerializationType());  // 序列化类型
+            lRpcRespose.setRequestId(lRpcRequest.getRequestId());  // 请求id
+            channelHandlerContext.writeAndFlush(lRpcRespose);
+            return;
+        }
+
+//        开始计数,请求开始前增加1
+        ShudownHookContant.REQUEST_COUNT.increment();
 //        如果是心跳请求，不用限流
         LRpcRespose lRpcRespose = new LRpcRespose();
         if (lRpcRequest.getRequestType() == RequestTypeEnum.HEART_BEAT_REQUEST.getCode()) {
@@ -96,6 +112,7 @@ public class LRpcServerHandler extends SimpleChannelInboundHandler<LRpcRequest> 
 
         }
         channelHandlerContext.channel().writeAndFlush(lRpcRespose);
+        ShudownHookContant.REQUEST_COUNT.decrement(); // 请求结束减少1；
     }
 
     @Override

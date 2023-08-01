@@ -348,5 +348,13 @@ public void updateTest()throws InterruptedException,KeeperException{
 
 ### 流量分组
 
+### 优雅停机
+
+#### 服务端
+
+#### 客户端
+
+
+
 
 
